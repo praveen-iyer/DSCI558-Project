@@ -32,9 +32,7 @@ def get_zip_codes_ca(zip_codes_url_ca):
 def main():
     zip_codes_url_ca = "https://www.unitedstateszipcodes.org/ca/"
     zip_codes_ca = get_zip_codes_ca(zip_codes_url_ca)
-    zip_vs_nearby = {}
-    for zip_code in zip_codes_ca:
-        zip_vs_nearby[zip_code] = get_nearby_zip_codes(zip_code)
+    zip_vs_nearby = {zip_code:get_nearby_zip_codes(zip_code) for zip_code in zip_codes_ca}
     print(zip_vs_nearby)
 
 if __name__ == "__main__":
