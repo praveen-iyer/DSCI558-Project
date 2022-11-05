@@ -23,7 +23,7 @@ def get_zip_codes_ca(zip_codes_url_ca):
     page = requests.get(zip_codes_url_ca, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
     results = soup.findAll("div", {"class" : "list-group-item"})
-    results = list(filter(lambda a:a.find("div",{"class":"col-xs-12 prefix-col2"}).get_text().strip()!="PO Box",results))
+    results = list(filter(lambda a:a.find("div",{"class":"col-xs-12 prefix-col2"}).get_text().strip()=="Standard",results))
     results = list(map(lambda a:a.find("div",{"class":"col-xs-12 prefix-col1"}).get_text().strip(),results))
     results = list(filter(lambda a:len(a)>0,results))
     results = list(map(int,results))
