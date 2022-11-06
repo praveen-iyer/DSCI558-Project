@@ -62,9 +62,9 @@ DOWNLOAD_DELAY = 0.8
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'data_scraper.pipelines.DataScraperPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'data_scraper.pipelines.JSONWriterPipeline': 2,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
