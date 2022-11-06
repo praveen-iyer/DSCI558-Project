@@ -13,7 +13,6 @@ class AttractionSpider(scrapy.Spider):
             if type_of_zip_code != "standard":
                 continue
             zip_code = zip_code_item.css('div.col-xs-12.prefix-col1 a::text').get().strip()
-            print(zip_code)
             zip_codes.append(zip_code)
             zip_code_url = f"https://www.unitedstateszipcodes.org/{zip_code}/"
             yield response.follow(zip_code_url,callback = self.parse_zip_info)
@@ -26,12 +25,14 @@ class AttractionSpider(scrapy.Spider):
         neighborhood = response.css('table.table.table-condensed.table-striped tbody tr')[1]
         neighborhood_list = neighborhood.css('tr td::text').get().strip().split("|")
         city = response.css('dl.dl-horizontal dd::text').get().strip()
+        print(city)
         nearby_zip_codes = []
         def get_digits(s):
             return ''.join(c for c in s if c.isdigit())
         if response.css('ul.list-unstyled.nearby-zips-links.clearfix'):
             nearby_zip_codes = response.css('ul.list-unstyled.nearby-zips-links.clearfix li a::text').getall()
             nearby_zip_codes = list(map(get_digits,nearby_zip_codes))
+        print(nearby_zip_codes)
 
         zip_code_data["zip_code"] = zip_code
         zip_code_data["neighborhood_list"] = neighborhood_list
