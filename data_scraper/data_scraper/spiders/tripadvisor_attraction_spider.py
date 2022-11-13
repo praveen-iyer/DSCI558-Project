@@ -21,15 +21,21 @@ class AttractionSpider(scrapy.Spider):
     def parse_attraction_info(self,response):
         attraction_data = {}
 
+        def give_empty_data():
+            data =  {}
+            data["attraction_name"] = None
+            data["attraction_address"] = None
+            data["zip_code"] = None
+            data["attraction_rating"] = None
+            data["attraction_n_reviews"] = None
+            return data
+
+
         if response.css('div.vAiJm h1.biGQs._P.fiohW.eIegw::text').get() is not None:
             attraction_name = response.css('div.vAiJm h1.biGQs._P.fiohW.eIegw::text').get().strip()
 
             if not response.css('div.ZhNYD div.MJ').getall():
-                attraction_data["attraction_name"] = None
-                attraction_data["attraction_address"] = None
-                attraction_data["zip_code"] = None
-                attraction_data["attraction_rating"] = None
-                attraction_data["attraction_n_reviews"] = None
+                attraction_data = give_empty_data()
 
             else:
 
@@ -68,18 +74,10 @@ class AttractionSpider(scrapy.Spider):
                     attraction_data["attraction_rating"] = rating
                     attraction_data["attraction_n_reviews"] = n_reviews
                 else:
-                    attraction_data["attraction_name"] = None
-                    attraction_data["attraction_address"] = None
-                    attraction_data["zip_code"] = None
-                    attraction_data["attraction_rating"] = None
-                    attraction_data["attraction_n_reviews"] = None
+                    attraction_data = give_empty_data()
 
             yield attraction_data
         
         else:
-            attraction_data["attraction_name"] = None
-            attraction_data["attraction_address"] = None
-            attraction_data["zip_code"] = None
-            attraction_data["attraction_rating"] = None
-            attraction_data["attraction_n_reviews"] = None
+            attraction_data = give_empty_data()
             yield attraction_data
