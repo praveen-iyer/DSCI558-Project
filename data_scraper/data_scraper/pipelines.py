@@ -7,6 +7,7 @@
 # useful for handling different item types with a single interface
 import json
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
 
 class JSONWriterPipeline:
@@ -53,14 +54,23 @@ class DuplicatesPipeline:
         adapter = ItemAdapter(item)
 
         if spider.name == "zip_codes_and_yelp":
-            self.s1 = set()
-            self.s2 = set()
+            if "nearby_zip_codes" in adapter:
+                if adapter["zip_code"] not in self.s1:
+                    self.s1.add(adapter["zip_code"])
+                    return item
+                else:
+                    raise DropItem(f"Duplicate item found: {item!r}")
+
+            if "restaurant_name" in adapter:
+                if adapter["restaurant_name"] not in self.s2:
+                    self.s2.add(adapter["restaurant_name"])
+                    return item
+                else:
+                    raise DropItem(f"Duplicate item found: {item!r}")
         
         if spider.name == "tripadvisor_attractions":
-            self.s3 = set()
-            
-        if adapter['id'] in self.ids_seen:
-            raise DropItem(f"Duplicate item found: {item!r}")
-        else:
-            self.ids_seen.add(adapter['id'])
-            return item
+            if adapter["attraction_name"] not in self.s3:
+                self.s3.add(adapter["attraction_name"])
+                return item
+            else:
+                raise DropItem(f"Duplicate item found: {item!r}")

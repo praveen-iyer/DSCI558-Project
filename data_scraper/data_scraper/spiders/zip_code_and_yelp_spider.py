@@ -25,15 +25,12 @@ class AttractionSpider(scrapy.Spider):
         neighborhood = response.css('table.table.table-condensed.table-striped tbody tr')[1]
         neighborhood_list = neighborhood.css('tr td::text').get().strip().split("|")
         city = response.css('dl.dl-horizontal dd::text').get().strip()
-        print(city)
         nearby_zip_codes = []
         def get_digits(s):
             return ''.join(c for c in s if c.isdigit())
         if response.css('ul.list-unstyled.nearby-zips-links.clearfix'):
             nearby_zip_codes = response.css('ul.list-unstyled.nearby-zips-links.clearfix li a::text').getall()
             nearby_zip_codes = list(map(get_digits,nearby_zip_codes))
-        print(nearby_zip_codes)
-
         zip_code_data["zip_code"] = zip_code
         zip_code_data["neighborhood_list"] = neighborhood_list
         zip_code_data["city"] = city
