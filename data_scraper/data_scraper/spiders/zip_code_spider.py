@@ -1,7 +1,7 @@
 import scrapy
 
-class AttractionSpider(scrapy.Spider):
-    name = "zip_codes_and_yelp"
+class ZipCodeSpider(scrapy.Spider):
+    name = "zip_code"
 
     start_urls = ["https://www.unitedstateszipcodes.org/ca/"]
 

@@ -12,8 +12,10 @@ from scrapy.exceptions import DropItem
 
 class JSONWriterPipeline:
     def open_spider(self,spider):
-        if spider.name == "zip_codes_and_yelp":
+        if spider.name == "zip_code":
             self.f1 = open("zip_code_data.jsonl","w",encoding = "utf-8")
+
+        if spider.name == "yelp":
             self.f2 = open("yelp_data.jsonl","w",encoding = "utf-8")
         
         if spider.name == "tripadvisor_attractions":
@@ -22,9 +24,11 @@ class JSONWriterPipeline:
     def process_item(self, item, spider):
         line = json.dumps(ItemAdapter(item).asdict()) + "\n"
 
-        if spider.name == "zip_codes_and_yelp":
+        if spider.name == "zip_code":
             if "nearby_zip_codes" in item:
                 self.f1.write(line)
+
+        if spider.name == "yelp":
             if "restaurant_name" in item:
                 self.f2.write(line)
 
@@ -33,8 +37,10 @@ class JSONWriterPipeline:
         return item
 
     def close_spider(self,spider):
-        if spider.name == "zip_codes_and_yelp":
+        if spider.name == "zip_code":
             self.f1.close()
+
+        if spider.name == "yelp":
             self.f2.close()
         
         if spider.name == "tripadvisor_attractions":
@@ -43,8 +49,10 @@ class JSONWriterPipeline:
 class DuplicatesPipeline:
 
     def open_spider(self,spider):
-        if spider.name == "zip_codes_and_yelp":
+        if spider.name == "zip_code":
             self.s1 = set()
+
+        if spider.name == "yelp":
             self.s2 = set()
         
         if spider.name == "tripadvisor_attractions":
@@ -53,7 +61,7 @@ class DuplicatesPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
-        if spider.name == "zip_codes_and_yelp":
+        if spider.name == "zip_code":
             if "nearby_zip_codes" in adapter:
                 if adapter["zip_code"] not in self.s1:
                     self.s1.add(adapter["zip_code"])
@@ -61,6 +69,7 @@ class DuplicatesPipeline:
                 else:
                     raise DropItem(f"Duplicate item found: {item!r}")
 
+        if spider.name == "yelp":
             if "restaurant_name" in adapter:
                 if adapter["restaurant_name"] not in self.s2:
                     self.s2.add(adapter["restaurant_name"])
