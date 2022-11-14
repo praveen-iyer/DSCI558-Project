@@ -39,6 +39,17 @@ class YelpSpder(scrapy.Spider):
             restaurant_data["amenities"] = None
             return restaurant_data
 
+        def get_zip_code_from_location_string(location):
+            delimeter = "CA "
+            zip_code_len = 5
+            zip_code = []
+            for i in range(location.find(delimeter)+len(delimeter),len(location)):
+                if location[i].isdigit():
+                    zip_code.append(location[i])
+                    if len(zip_code)==zip_code_len:
+                        break
+            zip_code = "".join(zip_code)
+
         restaurant_name = response.css('h1.css-1se8maq::text').get()
 
         n_reviews = response.css('div.arrange__09f24__LDfbs.gutter-1-5__09f24__vMtpw.vertical-align-middle__09f24__zU9sE.margin-b2__09f24__CEMjT.border-color--default__09f24__NPAKY span.css-1fdy0l5::text').get()
@@ -62,15 +73,10 @@ class YelpSpder(scrapy.Spider):
             return give_empty_data()
         
         location = ", ".join(response.css('div address p span::text').getall())
-        delimeter = "CA "
-        zip_code_len = 5
-        zip_code = []
-        for i in range(location.find(delimeter)+len(delimeter),len(location)):
-            if location[i].isdigit():
-                zip_code.append(location[i])
-                if len(zip_code)==zip_code_len:
-                    break
-        zip_code = "".join(zip_code)
+        if location=="":
+            return give_empty_data()
+        
+        zip_code = get_zip_code_from_location_string(location)
 
         amenities = response.css('section[aria-label="Amenities and More"]')
         amenities = amenities.css('span::text').getall()

@@ -30,6 +30,19 @@ class AttractionSpider(scrapy.Spider):
             data["attraction_n_reviews"] = None
             return data
 
+        def get_zip_code_from_location_string(location):
+            delimeter = "CA "
+            zip_code_len = 5
+            zip_code = []
+            for i in range(location.find(delimeter)+len(delimeter),len(location)):
+                if location[i].isdigit():
+                    zip_code.append(location[i])
+                    if len(zip_code)==zip_code_len:
+                        break
+            zip_code = "".join(zip_code)
+            return zip_code
+
+
         attraction_name = response.css('div.vAiJm h1.biGQs._P.fiohW.eIegw::text').get()
         if attraction_name is None:
             return give_empty_data()
@@ -48,15 +61,7 @@ class AttractionSpider(scrapy.Spider):
                 return give_empty_data()
         # location = "2800 E. Observatory Rd., Los Angeles, CA 90027-1299"
 
-        delimeter = "CA "
-        zip_code_len = 5
-        zip_code = []
-        for i in range(location.find(delimeter)+len(delimeter),len(location)):
-            if location[i].isdigit():
-                zip_code.append(location[i])
-                if len(zip_code)==zip_code_len:
-                    break
-        zip_code = "".join(zip_code)
+        zip_code = get_zip_code_from_location_string(location)
 
         rev_rat = response.css('div.eSDnY div.bdeBj.e div.yFKLG div.f.u.j')
         if len(rev_rat.getall())>0:
