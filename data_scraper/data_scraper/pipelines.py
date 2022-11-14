@@ -71,15 +71,15 @@ class DuplicatesPipeline:
 
         if spider.name == "yelp":
             if "restaurant_name" in adapter:
-                if adapter["restaurant_name"] not in self.s2:
-                    self.s2.add(adapter["restaurant_name"])
+                if adapter["restaurant_name"] is not None and (adapter["restaurant_name"], adapter["n_reviews"], adapter["average_rating"]) not in self.s2:
+                    self.s2.add((adapter["restaurant_name"], adapter["n_reviews"], adapter["average_rating"]))
                     return item
                 else:
-                    raise DropItem(f"Duplicate item found: {item!r}")
+                    raise DropItem(f"Duplicate (or None) item found: {item!r}")
         
         if spider.name == "tripadvisor_attractions":
-            if adapter["attraction_name"] not in self.s3:
+            if adapter["attraction_name"] is not None and adapter["attraction_name"] not in self.s3:
                 self.s3.add(adapter["attraction_name"])
                 return item
             else:
-                raise DropItem(f"Duplicate item found: {item!r}")
+                raise DropItem(f"Duplicate (or None) item found: {item!r}")
