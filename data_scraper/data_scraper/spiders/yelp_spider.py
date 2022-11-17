@@ -2,6 +2,12 @@ import scrapy
 import os
 import json
 
+from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 class YelpSpder(scrapy.Spider):
     name = "yelp"
     zip_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),"zip_code_data.jsonl")
@@ -11,6 +17,8 @@ class YelpSpder(scrapy.Spider):
     start_urls = [f"https://www.yelp.com/search?find_desc=Restaurants&find_loc={zip}" for zip in zip_data]
 
     def parse(self,response):
+        # driver_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),"chromedriver_linux64", "chromedriver")
+        # self.driver = webdriver.Chrome(driver_path)
         restaurant_links = response.css('li.border-color--default__09f24__NPAKY span.css-1egxyvc a::attr(href)').getall()
         all_restaurant_links = [response.urljoin(url) for url in restaurant_links]
         yield from response.follow_all(all_restaurant_links, callback = self.parse_restaurant_info)
@@ -26,6 +34,7 @@ class YelpSpder(scrapy.Spider):
             start_from_val = page_data[0] + "0"
             next_page = f"https://www.yelp.com/search?find_desc=Restaurants&find_loc=94088&start={start_from_val}"
             yield response.follow(next_page, callback = self.parse)
+        # self.driver.quit()
 
     def parse_restaurant_info(self,response):
 
@@ -78,8 +87,7 @@ class YelpSpder(scrapy.Spider):
         
         zip_code = get_zip_code_from_location_string(location)
 
-        amenities = response.css('section[aria-label="Amenities and More"]')
-        amenities = amenities.css('span::text').getall()
+        amenities = self.get_amenities(response)
         if len(amenities)==0:
             return give_empty_data()
         
@@ -96,3 +104,20 @@ class YelpSpder(scrapy.Spider):
         restaurant_data["amenities"] = amenities
 
         yield restaurant_data
+
+    def get_amenities(self,response):
+        url = response.url
+        driver_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),"chromedriver_linux64", "chromedriver")
+        driver = webdriver.Chrome(driver_path)
+        driver.get(url)
+        try:
+            button = WebDriverWait(driver, timeout=5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/yelp-react-root/div[1]/div[4]/div/div/div[2]/div/div[1]/main/section[3]/div[2]/button")))
+            button = button.click()
+            amenities = driver.find_elements(By.CSS_SELECTOR,"""section[aria-label="Amenities and More"] span""")
+            amenities = [amenity.text.strip() for amenity in amenities]
+            amenities = [amenity for amenity in amenities if amenity!="" and amenity!="Show Less"]
+        except TimeoutException:
+            amenities = response.css('section[aria-label="Amenities and More"]')
+            amenities = amenities.css('span::text').getall()
+        driver.quit()
+        return amenities
