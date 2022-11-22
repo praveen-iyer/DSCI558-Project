@@ -28,6 +28,7 @@ class AttractionSpider(scrapy.Spider):
             data["zip_code"] = None
             data["attraction_rating"] = None
             data["attraction_n_reviews"] = None
+            data["attraction_url"] = None
             return data
 
         def get_zip_code_from_location_string(location):
@@ -76,5 +77,6 @@ class AttractionSpider(scrapy.Spider):
         attraction_data["zip_code"] = zip_code
         attraction_data["attraction_rating"] = rating
         attraction_data["attraction_n_reviews"] = n_reviews
+        attraction_data["attraction_url"] = response.url
 
         yield attraction_data

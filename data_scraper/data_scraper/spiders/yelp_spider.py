@@ -45,7 +45,11 @@ class YelpSpder(scrapy.Spider):
             restaurant_data["average_rating"] = None
             restaurant_data["restaurant_address"] = None
             restaurant_data["zip_code"] = None
-            restaurant_data["amenities"] = None
+            restaurant_data["amenities_present"] = None
+            restaurant_data["amenities_absent"] = None
+            restaurant_name["dollars"] = None
+            restaurant_name["cuisine_list"] = None
+            restaurant_name["restaurant_url"] = None
             return restaurant_data
 
         def get_zip_code_from_location_string(location):
@@ -87,13 +91,26 @@ class YelpSpder(scrapy.Spider):
         
         zip_code = get_zip_code_from_location_string(location)
 
-        amenities = self.get_amenities(response)
-        if len(amenities)==0:
+        amenities_present, amenities_absent = self.get_amenities(response)
+        if len(amenities_present) + len(amenities_absent)==0:
             return give_empty_data()
         
-        processed_amenities = []
-        for amenity in amenities:
-            processed_amenities += amenity.split(", ")
+        processed_amenities_present = []
+        for amenity in amenities_present:
+            processed_amenities_present += amenity.split(", ")
+
+        processed_amenities_absent = []
+        for amenity in amenities_absent:
+            processed_amenities_absent += amenity.split(", ")
+
+        dollars = response.css('div.arrange-unit__09f24__rqHTg.arrange-unit-fill__09f24__CUubG.border-color--default__09f24__NPAKY span span.css-1ir4e44::text').get()
+        if dollars is None or len(dollars)==0:
+            dollars = None
+        else:
+            dollars = len(dollars.strip())
+
+        cuisine = response.css('div.arrange-unit__09f24__rqHTg.arrange-unit-fill__09f24__CUubG.border-color--default__09f24__NPAKY span span.css-1fdy0l5 a::text').getall()
+        cuisine = [c.strip() for c in cuisine]
 
         restaurant_data = {}
         restaurant_data["restaurant_name"] = restaurant_name
@@ -101,7 +118,11 @@ class YelpSpder(scrapy.Spider):
         restaurant_data["average_rating"] = average_rating
         restaurant_data["restaurant_address"] = location
         restaurant_data["zip_code"] = zip_code
-        restaurant_data["amenities"] = amenities
+        restaurant_data["amenities_present"] = processed_amenities_present
+        restaurant_data["amenities_absent"] = processed_amenities_absent
+        restaurant_name["dollars"] = dollars
+        restaurant_name["cuisine_list"] = cuisine
+        restaurant_name["restaurant_url"] = response.url
 
         yield restaurant_data
 
@@ -113,11 +134,16 @@ class YelpSpder(scrapy.Spider):
         try:
             button = WebDriverWait(driver, timeout=5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/yelp-react-root/div[1]/div[4]/div/div/div[2]/div/div[1]/main/section[3]/div[2]/button")))
             button = button.click()
-            amenities = driver.find_elements(By.CSS_SELECTOR,"""section[aria-label="Amenities and More"] span""")
-            amenities = [amenity.text.strip() for amenity in amenities]
-            amenities = [amenity for amenity in amenities if amenity!="" and amenity!="Show Less"]
+            amenities_present = driver.find_elements(By.CSS_SELECTOR,"""section[aria-label="Amenities and More"] span.css-1p9ibgf""")
+            amenities_absent = driver.find_elements(By.CSS_SELECTOR,"""section[aria-label="Amenities and More"] span.css-qyp8bo""")
+            amenities_present = [amenity.text.strip() for amenity in amenities_present]
+            amenities_absent = [amenity.text.strip() for amenity in amenities_absent]
+            amenities_present = [amenity for amenity in amenities_present if amenity!="" and amenity!="Show Less" and not amenity.endswith("More Attributes")]
+            amenities_absent = [amenity for amenity in amenities_absent if amenity!="" and amenity!="Show Less" and not amenity.endswith("More Attributes")]
         except TimeoutException:
-            amenities = response.css('section[aria-label="Amenities and More"]')
-            amenities = amenities.css('span::text').getall()
+            amenities_present = response.css('section[aria-label="Amenities and More"] span.css-1p9ibgf::text').getall()
+            amenities_absent = response.css('section[aria-label="Amenities and More"] span.css-qyp8bo::text').getall()
+            amenities_present = [amenity for amenity in amenities_present if amenity!="" and amenity!="Show Less" and not amenity.endswith("More Attributes")]
+            amenities_absent = [amenity for amenity in amenities_absent if amenity!="" and amenity!="Show Less" and not amenity.endswith("More Attributes")]
         driver.quit()
-        return amenities
+        return amenities_present, amenities_absent
