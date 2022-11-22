@@ -47,9 +47,9 @@ class YelpSpder(scrapy.Spider):
             restaurant_data["zip_code"] = None
             restaurant_data["amenities_present"] = None
             restaurant_data["amenities_absent"] = None
-            restaurant_name["dollars"] = None
-            restaurant_name["cuisine_list"] = None
-            restaurant_name["restaurant_url"] = None
+            restaurant_data["price_level"] = None
+            restaurant_data["cuisine_list"] = None
+            restaurant_data["restaurant_url"] = None
             return restaurant_data
 
         def get_zip_code_from_location_string(location):
@@ -62,6 +62,7 @@ class YelpSpder(scrapy.Spider):
                     if len(zip_code)==zip_code_len:
                         break
             zip_code = "".join(zip_code)
+            return zip_code
 
         restaurant_name = response.css('h1.css-1se8maq::text').get()
 
@@ -120,9 +121,9 @@ class YelpSpder(scrapy.Spider):
         restaurant_data["zip_code"] = zip_code
         restaurant_data["amenities_present"] = processed_amenities_present
         restaurant_data["amenities_absent"] = processed_amenities_absent
-        restaurant_name["dollars"] = dollars
-        restaurant_name["cuisine_list"] = cuisine
-        restaurant_name["restaurant_url"] = response.url
+        restaurant_data["price_level"] = dollars
+        restaurant_data["cuisine_list"] = cuisine
+        restaurant_data["restaurant_url"] = response.url
 
         yield restaurant_data
 
