@@ -1,6 +1,5 @@
 import json
 import os
-
 import pandas as pd
 
 ip_file = os.path.join(os.path.dirname(__file__),"tripadvisor_data.jsonl")
@@ -18,4 +17,5 @@ for col in cols:
     d[col] = list(map(lambda a:a[col],data))
 
 df = pd.DataFrame(d)
+df['ID'] = df.reset_index().index
 df.to_csv(op_file, index=False)

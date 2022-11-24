@@ -27,4 +27,5 @@ attraction_names, about_sections = list(d.keys()), list(d.values())
 df = pd.DataFrame({'attraction_name': attraction_names, 'about': about_sections})
 
 fname = os.path.join(os.path.dirname(__file__),"expert_attraction.csv")
+df['ID'] = df.reset_index().index
 df.to_csv(fname, index=False)
