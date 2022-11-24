@@ -46,6 +46,12 @@ class KGBuilder:
         tx.run(query_str)
 
     @staticmethod
+    def _create_city_nodes(tx,d):
+        d_str = make_d_str(d)
+        query_str = f"CREATE (c1:CityNode {d_str})"
+        tx.run(query_str)
+
+    @staticmethod
     def _create_attraction_nodes(tx,d):
         d_str = make_d_str(d)
         query_str = f"CREATE (a1:AttractionNode {d_str})"
@@ -60,6 +66,11 @@ class KGBuilder:
     @staticmethod
     def _create_nearby_zip_edges(tx,z1,z2):
         query_str = "MATCH (z1:ZIPNode{zip_code:"+ str(z1) + "}),(z2:ZIPNode{zip_code: "+ str(z2) + "}) MERGE (z1)-[:Nearby]->(z2)"
+        tx.run(query_str)
+
+    @staticmethod
+    def _create_city_edges(tx, z, c):
+        query_str = "MATCH (z:ZIPNode{zip_code:"+ str(z) + "}),(c:CityNode{city_name: '"+ str(c) + "'}) MERGE (z)-[:InCity]->(c)"
         tx.run(query_str)
 
     @staticmethod
@@ -80,6 +91,14 @@ class KGBuilder:
             d["nearby_zip_codes"]  = list(map(int,d["nearby_zip_codes"]))
             with self.driver.session() as session:
                 session.execute_write(self._create_zip_nodes,d)
+
+    def create_city_nodes(self, f):
+        fdata = read_jsonl(f)
+        cities = {one["city"] for one in fdata}
+        city_d = [{"city_name":city} for city in cities]
+        for d in city_d:
+            with self.driver.session() as session:
+                session.execute_write(self._create_city_nodes,d)
 
     def create_attraction_nodes(self, f):
         fdata = read_jsonl(f)
@@ -104,6 +123,14 @@ class KGBuilder:
             for nearby_zip in nearby_zips:
                 with self.driver.session() as session:
                     session.execute_write(self._create_nearby_zip_edges,base_zip,nearby_zip)
+
+    def create_city_edges(self, f):
+        fdata = read_jsonl(f)
+
+        for d in fdata:
+            z,c = int(d["zip_code"]),d["city"]
+            with self.driver.session() as session:
+                session.execute_write(self._create_city_edges,z,c)
 
     def create_attraction_edges(self, f):
         fdata = read_jsonl(f)
@@ -134,16 +161,20 @@ yelp_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scrap
 
 builder = KGBuilder(uri, user, password)
 print("Initialized",datetime.now().time())
-# builder.create_zip_nodes(zip_file)
-# print("Zip nodes created",datetime.now().time())
-# builder.create_attraction_nodes(tripadvisor_file)
-# print("Attraction nodes created",datetime.now().time())
+builder.create_zip_nodes(zip_file)
+print("Zip nodes created",datetime.now().time())
+builder.create_attraction_nodes(tripadvisor_file)
+print("Attraction nodes created",datetime.now().time())
+builder.create_city_nodes(zip_file)
+print("City nodes created",datetime.now().time())
 builder.create_restaurant_nodes(yelp_file)
 print("Restauarant nodes created",datetime.now().time())
-# builder.create_nearby_zip_edges(zip_file)
-# print("Edges relations created",datetime.now().time())
-# builder.create_attraction_edges(tripadvisor_file)
-# print("Atrraction relations created",datetime.now().time())
+builder.create_nearby_zip_edges(zip_file)
+print("Nearby relations created",datetime.now().time())
+builder.create_city_edges(zip_file)
+print("City relations created",datetime.now().time())
+builder.create_attraction_edges(tripadvisor_file)
+print("Atrraction relations created",datetime.now().time())
 builder.create_restaurant_edges(yelp_file)
 print("Restaurant relations created",datetime.now().time())
 builder.close()
