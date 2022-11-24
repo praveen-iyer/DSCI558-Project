@@ -69,7 +69,7 @@ class KGBuilder:
 
     @staticmethod
     def _create_restaurant_edges(tx,z,r,nr,ar):
-        query_str = "MATCH (z:ZIPNode{zip_code:"+ str(z) + "}),(r:RestaurantNode{restaurant_name: '"+ str(r) + "' , n_reviews: " + str(nr) + ", average_rating: " + str(ar) + "}) MERGE (z)-[:HasRestaurant]->(a)"
+        query_str = "MATCH (z:ZIPNode{zip_code:"+ str(z) + "}),(r:RestaurantNode{restaurant_name: '"+ str(r) + "' , n_reviews: " + str(nr) + ", average_rating: " + str(ar) + "}) MERGE (z)-[:HasRestaurant]->(r)"
         tx.run(query_str)
 
 
@@ -138,12 +138,12 @@ print("Initialized",datetime.now().time())
 # print("Zip nodes created",datetime.now().time())
 # builder.create_attraction_nodes(tripadvisor_file)
 # print("Attraction nodes created",datetime.now().time())
-# builder.create_restaurant_nodes(yelp_file)
-# print("Restauarant nodes created",datetime.now().time())
+builder.create_restaurant_nodes(yelp_file)
+print("Restauarant nodes created",datetime.now().time())
 # builder.create_nearby_zip_edges(zip_file)
 # print("Edges relations created",datetime.now().time())
-builder.create_attraction_edges(tripadvisor_file)
-print("Atrraction relations created",datetime.now().time())
+# builder.create_attraction_edges(tripadvisor_file)
+# print("Atrraction relations created",datetime.now().time())
 builder.create_restaurant_edges(yelp_file)
 print("Restaurant relations created",datetime.now().time())
 builder.close()
