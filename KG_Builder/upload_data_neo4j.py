@@ -1,6 +1,7 @@
 import json
 import os
 from neo4j import GraphDatabase
+from datetime import datetime
 
 def read_jsonl(fpath):
     with open(fpath,"r") as f:
@@ -15,15 +16,20 @@ def make_d_str(d):
         if v is None:
             v = "Unknown"
         if k=="n_reviews" or k=="zip_code":
+            if not v:
+                v = -1
             v = int(v)
         if k=="average_rating":
+            if not v:
+                v = "Unknown"
             v = float(v)
         
         if  type(v)==str:
+            v = v.replace("'","")
             l.append(f"""{k}:'{v}'""")
         else:
             l.append(f"""{k}:{v}""")
-    return "{" + " , ".join(l) + "}"
+    return ("{" + " , ".join(l) + "}")
 
 class KGBuilder:
 
@@ -53,7 +59,7 @@ class KGBuilder:
 
     @staticmethod
     def _create_nearby_zip_edges(tx,z1,z2):
-        query_str = "MATCH (z1:ZIPNode{zip_code:"+ str(z1) + "}),(z2:ZIPNode{zip_code: "+ str(z2) + "}) MERGE (n1)-[:Nearby]->(n2)"
+        query_str = "MATCH (z1:ZIPNode{zip_code:"+ str(z1) + "}),(z2:ZIPNode{zip_code: "+ str(z2) + "}) MERGE (z1)-[:Nearby]->(z2)"
         tx.run(query_str)
 
     @staticmethod
@@ -70,7 +76,8 @@ class KGBuilder:
     def create_zip_nodes(self, f):
         fdata = read_jsonl(f)
         
-        for d in fdata:    
+        for d in fdata:
+            d["nearby_zip_codes"]  = list(map(int,d["nearby_zip_codes"]))
             with self.driver.session() as session:
                 session.execute_write(self._create_zip_nodes,d)
 
@@ -92,7 +99,8 @@ class KGBuilder:
         fdata = read_jsonl(f)
         
         for d in fdata:
-            base_zip, nearby_zips = d["zip_code"], d["nearby_zip_codes"]
+            base_zip, nearby_zips = int(d["zip_code"]), d["nearby_zip_codes"]
+            nearby_zips = list(map(int,nearby_zips))
             for nearby_zip in nearby_zips:
                 with self.driver.session() as session:
                     session.execute_write(self._create_nearby_zip_edges,base_zip,nearby_zip)
@@ -101,7 +109,7 @@ class KGBuilder:
         fdata = read_jsonl(f)
         
         for d in fdata:
-            zip, attraction = d["zip_code"], d["attraction_name"]
+            zip, attraction = d["zip_code"], d["attraction_name"].replace("'","")
             with self.driver.session() as session:
                 session.execute_write(self._create_attraction_edges, zip, attraction)
 
@@ -109,24 +117,33 @@ class KGBuilder:
         fdata = read_jsonl(f)
         
         for d in fdata:
-            zip, restaurant, n_reviews, average_rating = d["zip_code"], d["restaurant_name"], d["n_reviews"], d["average_rating"]
+            zip, restaurant, n_reviews, average_rating = d["zip_code"], d["restaurant_name"].replace("'",""), d["n_reviews"], d["average_rating"]
+            n_reviews = n_reviews if n_reviews else "Unknown"
+            average_rating = average_rating if average_rating else "Unknown"
             with self.driver.session() as session:
                 session.execute_write(self._create_restaurant_edges, zip, restaurant, n_reviews, average_rating)
             
 
 uri = "neo4j+s://3b90e4fd.databases.neo4j.io"
 user = "neo4j"
-password = ""
+password = "4_PR6r6i7V3k-i4dgkUygZcgU-G5ceCZRwUnrOlqLpo"
 
 zip_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scraper", "zip_code_data.jsonl")
 tripadvisor_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scraper", "tripadvisor_data.jsonl")
 yelp_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scraper", "yelp_data.jsonl")
 
 builder = KGBuilder(uri, user, password)
-builder.create_zip_nodes(zip_file)
-builder.create_attraction_nodes(tripadvisor_file)
-builder.create_restaurant_nodes(yelp_file)
-builder.create_nearby_zip_edges(zip_file)
+print("Initialized",datetime.now().time())
+# builder.create_zip_nodes(zip_file)
+# print("Zip nodes created",datetime.now().time())
+# builder.create_attraction_nodes(tripadvisor_file)
+# print("Attraction nodes created",datetime.now().time())
+# builder.create_restaurant_nodes(yelp_file)
+# print("Restauarant nodes created",datetime.now().time())
+# builder.create_nearby_zip_edges(zip_file)
+# print("Edges relations created",datetime.now().time())
 builder.create_attraction_edges(tripadvisor_file)
+print("Atrraction relations created",datetime.now().time())
 builder.create_restaurant_edges(yelp_file)
+print("Restaurant relations created",datetime.now().time())
 builder.close()
