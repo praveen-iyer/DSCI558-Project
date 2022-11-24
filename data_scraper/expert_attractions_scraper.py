@@ -25,7 +25,6 @@ d2 = get_about_dictionary(url2)
 d = d1 | d2
 attraction_names, about_sections = list(d.keys()), list(d.values())
 df = pd.DataFrame({'attraction_name': attraction_names, 'about': about_sections})
-df.reset_index(drop=True, inplace=True)
 
 fname = os.path.join(os.path.dirname(__file__),"expert_attraction.csv")
 df.to_csv(fname, index=False)
