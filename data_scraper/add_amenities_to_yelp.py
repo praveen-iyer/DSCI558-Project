@@ -18,6 +18,8 @@ def process_d(d):
     ap = set(d["amenities_present"])
     aa = set(d["amenities_absent"])
     veg_flag = search_substr("Vegetarian", ap, aa)
+    if veg_flag==0:
+        veg_flag = search_substr("Vegan", ap, aa)
     park_flag = search_substr("Parking", ap, aa)
     takeout_flag = search_substr("Takeout", ap, aa)
     drivethru_flag = search_substr("Drive-Thru", ap, aa)
