@@ -34,8 +34,10 @@ def process_d(d):
     d["is_good_for_kids"] = kids_flag
     d["dogs_allowed"] = dog_flag
     d["smoking_allowed"] = smoking_flag
+    d["restaurant_name"] = d["restaurant_name"].replace("'","")
+    d["restaurant_address"] = d["restaurant_address"].replace("'","")
 
-    print(veg_flag+park_flag+takeout_flag+drivethru_flag+reservation_flag+kids_flag+dog_flag+smoking_flag)
+    # print(veg_flag+park_flag+takeout_flag+drivethru_flag+reservation_flag+kids_flag+dog_flag+smoking_flag)
     return d
 
 with open(ip_path,"r") as f:

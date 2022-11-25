@@ -157,26 +157,34 @@ user = "neo4j"
 password = "4_PR6r6i7V3k-i4dgkUygZcgU-G5ceCZRwUnrOlqLpo"
 
 zip_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scraper", "zip_code_data.jsonl")
-tripadvisor_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scraper", "tripadvisor_data.jsonl")
+tripadvisor_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scraper", "tripadvisor_linked_data.jsonl")
 yelp_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_scraper", "yelp_data_with_amenity_flags.jsonl")
 
 builder = KGBuilder(uri, user, password)
 print("Initialized",datetime.now().time())
 
-# builder.create_zip_nodes(zip_file)
-# print("Zip nodes created",datetime.now().time())
-# builder.create_city_nodes(zip_file)
-# print("City nodes created",datetime.now().time())
-# builder.create_attraction_nodes(tripadvisor_file)
-# print("Attraction nodes created",datetime.now().time())
-# builder.create_restaurant_nodes(yelp_file)
-# print("Restauarant nodes created",datetime.now().time())
+builder.create_zip_nodes(zip_file)
+print("Zip nodes created",datetime.now().time())
+
+builder.create_city_nodes(zip_file)
+print("City nodes created",datetime.now().time())
+
+builder.create_attraction_nodes(tripadvisor_file)
+print("Attraction nodes created",datetime.now().time())
+
+builder.create_restaurant_nodes(yelp_file)
+print("Restauarant nodes created",datetime.now().time())
+
 builder.create_nearby_zip_edges(zip_file)
 print("Nearby relations created",datetime.now().time())
-# builder.create_city_edges(zip_file)
-# print("City relations created",datetime.now().time())
-# builder.create_attraction_edges(tripadvisor_file)
-# print("Atrraction relations created",datetime.now().time())
-# builder.create_restaurant_edges(yelp_file)
-# print("Restaurant relations created",datetime.now().time())
+
+builder.create_city_edges(zip_file)
+print("City relations created",datetime.now().time())
+
+builder.create_attraction_edges(tripadvisor_file)
+print("Atrraction relations created",datetime.now().time())
+
+builder.create_restaurant_edges(yelp_file)
+print("Restaurant relations created",datetime.now().time())
+
 builder.close()
