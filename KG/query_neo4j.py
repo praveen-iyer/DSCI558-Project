@@ -15,22 +15,24 @@ class KGQuerier:
     def get_restuarants_near_attraction(self, attraction_name):
         query_str = f"""MATCH (z)-[:HasAttraction]->(:AttractionNode{{attraction_name: "{attraction_name}"}})
         MATCH (z)-[:Nearby]->(nz) MATCH (nz)-[:HasRestaurant]->(r)
-        RETURN r.restaurant_name"""
+        RETURN r.restaurant_name, r.zip_code"""
 
         restaurants =  self.query(query_str)
-        restaurants = list(map(lambda a:a["r.restaurant_name"],restaurants))
-        return restaurants
+        restaurants_with_zip = list(map(lambda a:(a["r.restaurant_name"],a["r.zip_code"]),restaurants))
+        return restaurants_with_zip
     
     def query(self, query_str):
         with self.driver.session() as session:
             response = list(session.run(query_str))
         return response
 
-uri = "neo4j+s://3b90e4fd.databases.neo4j.io"
-user = "neo4j"
-password = "4_PR6r6i7V3k-i4dgkUygZcgU-G5ceCZRwUnrOlqLpo"
-querier = KGQuerier(uri, user, password)
+if __name__=="__main__":
+    uri = "neo4j+s://3b90e4fd.databases.neo4j.io"
+    user = "neo4j"
+    password = "4_PR6r6i7V3k-i4dgkUygZcgU-G5ceCZRwUnrOlqLpo"
+    querier = KGQuerier(uri, user, password)
 
-nearby_restaurants = querier.get_restuarants_near_attraction("Redwood National Park")
-print(nearby_restaurants)
-querier.close()
+    # nearby_restaurants = querier.get_restuarants_near_attraction("Redwood National Park")
+    nearby_restaurants_with_zip = querier.get_restuarants_near_attraction("Gossamer Cellars")
+    print(nearby_restaurants_with_zip)
+    querier.close()
