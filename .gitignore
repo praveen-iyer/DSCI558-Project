@@ -1,4 +1,3 @@
-data_scraper/data_scraper/__pycache__/*
-data_scraper/data_scraper/spiders/__pycache__/*
 data_scraper/data_scraper/chromedriver_linux64/chromedriver
 data_scraper/data_scraper/chromedriver_linux64.zip
+*/__pycache__/*
