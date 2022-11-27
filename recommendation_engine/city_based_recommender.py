@@ -42,13 +42,13 @@ def get_top_attractions_from_city(city_name):
 
     return attraction_data
 
-def get_top_restaurants_from_city(city_name):
+def get_top_restaurants_from_city(city_name,flag_d):
     uri = "neo4j+s://3b90e4fd.databases.neo4j.io"
     user = "neo4j"
     password = "4_PR6r6i7V3k-i4dgkUygZcgU-G5ceCZRwUnrOlqLpo"
     querier = KGQuerier(uri, user, password)
 
-    restaurants_with_zip_in_city = querier.get_restaurants_with_zip_from_city(city_name)
+    restaurants_with_zip_in_city = querier.get_restaurants_with_zip_from_city(city_name, flag_d)
 
     with open(restaurants_file,"r") as f:
         fdata = f.read().split("\n")[:-1]

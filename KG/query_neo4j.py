@@ -4,6 +4,28 @@ uri = "neo4j+s://3b90e4fd.databases.neo4j.io"
 user = "neo4j"
 password = "4_PR6r6i7V3k-i4dgkUygZcgU-G5ceCZRwUnrOlqLpo"
 
+def make_d_str(d):
+    l = []
+    for k,v in d.items():
+        
+        if v is None:
+            v = "Unknown"
+        if k=="n_reviews" or k=="zip_code":
+            if not v:
+                v = -1
+            v = int(v)
+        if k=="average_rating":
+            if not v:
+                v = "Unknown"
+            v = float(v)
+        
+        if  type(v)==str:
+            v = v.replace("'","")
+            l.append(f"""{k}:'{v}'""")
+        else:
+            l.append(f"""{k}:{v}""")
+    return ("{" + " , ".join(l) + "}")
+
 class KGQuerier:
 
     def __init__(self, uri, user, password):
@@ -54,9 +76,10 @@ class KGQuerier:
         attractions_with_zip = list(map(lambda a:(a["a.attraction_name"],a["a.zip_code"]),attractions_with_zip))
         return attractions_with_zip
 
-    def get_restaurants_with_zip_from_city(self,city_name):
+    def get_restaurants_with_zip_from_city(self,city_name, flags_d):
+        flags_str = make_d_str(flags_d)
         query_str = f"""MATCH (z)-[:InCity]-(c:CityNode{{city_name:"{city_name}"}})
-        MATCH(z)-[:HasRestaurant]->(r:RestaurantNode)
+        MATCH(z)-[:HasRestaurant]->(r:RestaurantNode{flags_str})
         RETURN r.restaurant_name, r.zip_code"""
 
         restaurants_with_zip = self.query(query_str)
