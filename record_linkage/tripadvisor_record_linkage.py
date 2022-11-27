@@ -115,11 +115,33 @@ def rule_based_method(r1, r2):
 
 candidate_pairs = rltk.get_record_pairs(dataset_expert, dataset_tripadvisor)
 
+manual_file = os.path.join(os.path.dirname(__file__),"manually_annotated.json")
+
+with open(manual_file,"r") as f:
+    gt = json.load(f)
+
+tp,fp,n = 0,0,0
+
 linked_tripadvisor_names_with_about = {}
 for r1, r2 in candidate_pairs:
     result, confidence = rule_based_method(r1, r2)
     if result == True:
+        if r1.attraction_name in gt:
+            gt.remove(r1.attraction_name)
+            tp+=1
+        else:
+            fp+=1
         linked_tripadvisor_names_with_about[r2.attraction_name] = r1.about
+    else:
+        n +=1
+fn = len(gt)
+tn = n - fn
+precision = (tp)/(tp+fp)
+recall = (tp)/(tp+fn)
+f1 = (2*precision*recall)/(precision+recall)
+
+print("The metrics based on our manual evaluation are as follows:")
+print(f"Precision = {precision} ; Recall = {recall} ; F-1 score = {f1}")
 
 old_jsonl = os.path.join(os.path.dirname(os.path.dirname(__file__)),"data_scraper","tripadvisor_data.jsonl")
 new_jsonl = os.path.join(os.path.dirname(os.path.dirname(__file__)),"data_scraper","tripadvisor_linked_data.jsonl")
@@ -141,3 +163,4 @@ fdata = list(map(lambda a:json.dumps(a),fdata))
 out_str = "\n".join(fdata) + "\n"
 with open(new_jsonl,"w") as f:
     f.write(out_str)
+
