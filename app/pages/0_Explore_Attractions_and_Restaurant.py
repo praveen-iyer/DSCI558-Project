@@ -39,14 +39,14 @@ if entity == "Attractions":
     st.write(render_attraction(recommendations),unsafe_allow_html=True)
 else:
     with st.form("restaurant_flags"):
-        veg_flag = st.radio("Are you looking for vegetarian options?",("Yes","No"),horizontal = True, key="veg")
-        parking_flag = st.radio("Are you looking for parking?",("Yes","No"),horizontal = True, key="parking")
-        takeout_flag = st.radio("Are you looking for takeout?",("Yes","No"),horizontal = True, key="takeout")
-        drivethru_flag = st.radio("Are you looking for drive-thru?",("Yes","No"),horizontal = True, key="drivethru")
-        reservation_flag = st.radio("Are you looking for reservations?",("Yes","No"),horizontal = True, key="reservation")
-        kid_flag = st.radio("Are you looking for a place which is good for kids?",("Yes","No"),horizontal = True, key="kid")
-        dog_flag = st.radio("Are you looking for a place which is good for dogs?",("Yes","No"),horizontal = True, key="dog")
-        smoking_flag = st.radio("Are you looking for a place which allows smoking?",("Yes","No"),horizontal = True, key="smoking")
+        veg_flag = st.radio("Are you looking for vegetarian options?",("No", "Yes"),horizontal = True, key="veg")
+        parking_flag = st.radio("Are you looking for parking?",("No", "Yes"),horizontal = True, key="parking")
+        takeout_flag = st.radio("Are you looking for takeout?",("No", "Yes"),horizontal = True, key="takeout")
+        drivethru_flag = st.radio("Are you looking for drive-thru?",("No", "Yes"),horizontal = True, key="drivethru")
+        reservation_flag = st.radio("Are you looking for reservations?",("No", "Yes"),horizontal = True, key="reservation")
+        kid_flag = st.radio("Are you looking for a place which is good for kids?",("No", "Yes"),horizontal = True, key="kid")
+        dog_flag = st.radio("Are you looking for a place which is good for dogs?",("No", "Yes"),horizontal = True, key="dog")
+        smoking_flag = st.radio("Are you looking for a place which allows smoking?",("No", "Yes"),horizontal = True, key="smoking")
 
         # veg_flag = 1 if veg_flag=="Yes" else 0
         # parking_flag = 1 if parking_flag=="Yes" else 0
