@@ -1,0 +1,8 @@
+requests==2.28.1
+beautifulsoup4==4.11.1
+scrapy==2.6.2
+selenium==4.6.0
+pandas==1.5.2
+matplotlib==3.6.2
+rltk==2.0.0a20
+neo4j==5.2.1

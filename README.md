@@ -5,6 +5,17 @@ Final Project for DSCI558 (Building Knowledge Graphs) at USC in fall 2022 semest
 * Praveen Iyer (MS Applied Data Science)
 * Sankalp Sharma (MS Applied Data Science)
 
+## Tools and Technologies Used
+1. Data Scraping
+    * Beautiful Soup for scraping expert recommended attractions
+    * Scrapy spiders for crawling static data
+    * Selenium to scrape all amenties from yelp website which loads dynamicaly based on a button click
+2. Record Linkage/ Entity Linking
+    * RLTK
+3. Knowledge Graphs
+    * Neo4J AuraDB clod database for storing data
+    * Cypher queries
+4. Streamlit for building the User Interface
 ## Data Sources
 1. Structured data source for extracting zip codes and nearby zip code information in California from:
     * https://www.unitedstateszipcodes.org/ca/
@@ -21,12 +32,12 @@ In this project, we have built a knowledge graph about restaurants and local att
 1. __Input__ - Attraction user wants to visit, Restaurant user likes<br/>
    __Output__ - Top 5 most similar restauarnts near the attraction (The results are sorted by similarity)
 
-   ![Sample Screenshot](images/ui_recommendations.png)
+   ![](images/ui_recommendations.png)
 
 2. __Input__ - City user wants to visit<br/>
    __Output__ - Top 5 rated attractions in the city (The results are sorted by expert recommendation first, then by average rating and number of reviews)
 
-   ![Sample Screenshot](images/ui_attractions.png)
+   ![](images/ui_attractions.png)
 
 3. __Input__ - City user wants to visit, Select "Yes" or "No" from a list of questions<br/>
     * Looking for Vegetarian options?
@@ -40,4 +51,4 @@ In this project, we have built a knowledge graph about restaurants and local att
 
    __Output__ - Top 5 rated restauarants in the city which satisfy the filters (The results are sorted by average rating and number of reviews)
 
-   ![Sample Screenshot](images/ui_restuarants.png)
+   ![](images/ui_restuarants.png)

@@ -1,9 +1,6 @@
 import json
 import os
-import pandas as pd
 import rltk
-import csv
-import re
 from rltk.similarity.tf_idf import TF_IDF
 
 tokenizer = rltk.tokenizer.crf_tokenizer.crf_tokenizer.CrfTokenizer()
